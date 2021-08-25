@@ -1,0 +1,270 @@
+Задание 4.1
+select
+    count (distinct a.airport_code), a.city
+from
+    dst_project.airports a
+group by a.city 
+having count (distinct a.airport_code) > 1
+
+
+Задание 4.2
+Вопрос 1.
+select
+    count (distinct f.status)
+from
+    dst_project.flights f
+
+
+Вопрос 2.
+select
+    count (distinct f.flight_no)
+from
+    dst_project.flights f
+where f.status = 'Departed'
+
+
+Вопрос 3
+select
+    count(s.seat_no)
+from
+    dst_project.aircrafts a
+        join dst_project.seats s on s.aircraft_code = a.aircraft_code
+where a.model = 'Boeing 777-300'
+
+
+Вопрос 4.
+select
+    count (f.actual_arrival)
+from
+    dst_project.flights f
+where 
+    f.actual_arrival is not null and (f.actual_arrival between '2017-04-01 00:00:00'::timestamp and '2017-09-01 00:00:00'::timestamp)
+    and f.status = 'Arrived'
+
+
+Задание 4.3
+Вопрос 1.
+select
+    count(f.status)
+from
+    dst_project.flights f
+where 
+    f.status = 'Cancelled'
+
+
+Вопрос 2.
+select
+    'Boeing' model, count(a.model)
+from
+    dst_project.aircrafts a
+
+where position('Boeing' in a.model)>0
+union 
+select
+    'Sukhoi Superjet' model, count(a.model)
+from
+    dst_project.aircrafts a
+
+where position('Sukhoi Superjet' in a.model)>0
+union  
+select
+    'Airbus' model, count(a.model)
+from
+    dst_project.aircrafts a
+
+where position('Airbus' in a.model)>0
+
+
+Вопрос 3.
+select 
+	u.continent, max(u.no_airports) max_air
+from 
+    (select 
+        'Asia' continent, count(a.timezone) no_airports
+from
+    dst_project.airports a
+where position('Asia' in a.timezone)>0
+
+union 
+select
+    'Europe' continent, count(a.timezone) no_airports
+from
+    dst_project.airports a
+where position('Europe' in a.timezone)>0
+
+union
+select
+    'Australia' continent, count(a.timezone) no_airports
+from
+    dst_project.airports a
+where position('Australia' in a.timezone)>0
+	) u
+group by 1
+order by 2 desc
+
+
+Вопрос 4. 
+select
+    f.flight_id,
+    f.actual_arrival - f.scheduled_arrival
+    
+from
+    dst_project.flights f
+where 
+    f.actual_arrival is not null
+order by 2 desc
+limit 1
+
+
+Задание 4.4
+Вопрос 1. 
+select
+    f.scheduled_departure
+from
+    dst_project.flights f
+where 
+    f.scheduled_departure is not null
+order by 1
+limit 1
+
+
+Вопрос 2.
+select
+    extract(epoch from (f.scheduled_arrival - f.scheduled_departure)) / 60
+from
+    dst_project.flights f
+where 
+    f.scheduled_departure is not null and f.scheduled_arrival is not null
+order by 1 desc
+limit 1
+    
+
+Вопрос 3.
+select
+    f.departure_airport, f.arrival_airport, f.scheduled_arrival - f.scheduled_departure
+from
+    dst_project.flights f
+where 
+    f.scheduled_departure is not null and f.scheduled_arrival is not null
+order by 3 desc
+limit 1
+
+
+Вопрос 4.
+select
+    round(avg(extract (epoch from (f.scheduled_arrival - f.scheduled_departure)) / 60))
+from
+    dst_project.flights f
+where 
+    f.scheduled_departure is not null and f.scheduled_arrival is not null
+
+
+Задание 4.5
+Вопрос 1.
+select
+    s.fare_conditions, count(s.fare_conditions)
+from
+    dst_project.seats s
+where 
+    aircraft_code = 'SU9'
+group by 1
+
+
+Вопрос 2.
+select
+    b.total_amount
+from
+    dst_project.bookings b
+order by 1 
+limit 1
+
+
+Вопрос 3.
+select
+    b.seat_no
+from
+    dst_project.boarding_passes b
+        join dst_project.tickets t on t.ticket_no = b.ticket_no
+where 
+    t.passenger_id = '4313 788533'
+
+
+Задание 5.1
+Вопрос 1.
+select
+    count(f.flight_no)
+from
+    dst_project.airports a
+        join dst_project.flights f on a.airport_code = f.arrival_airport
+where 
+    a.city = 'Anapa' and extract(year from f.actual_arrival) = '2017'
+
+
+Вопрос 2. 
+select
+    count(f.flight_no)
+from
+    dst_project.airports a
+        join dst_project.flights f on a.airport_code = f.departure_airport
+where 
+    a.city = 'Anapa' and 
+    (date_part('year', actual_departure) = 2017) and
+    (date_part('month', actual_departure) IN (12, 1, 2))
+
+
+Вопрос 3.
+select
+    count(f.flight_no)
+from
+    dst_project.airports a
+        join dst_project.flights f on a.airport_code = f.departure_airport
+where 
+    a.city = 'Anapa' and f.status = 'Cancelled'
+
+
+Вопрос 4. 
+select
+    count(f.arrival_airport)
+from
+    dst_project.airports a
+        join dst_project.flights f on a.airport_code = f.departure_airport
+            join dst_project.airports a1 on a1.airport_code = f.arrival_airport
+where 
+    a.city = 'Anapa' and a1.city != 'Moscow'
+
+
+Вопрос 5.
+select
+    a.model, count(s.seat_no)
+from
+    dst_project.aircrafts a
+        join dst_project.flights f on f.aircraft_code = a.aircraft_code
+            join dst_project.airports p on p.airport_code = f.departure_airport
+                join dst_project.seats s on s.aircraft_code = a.aircraft_code
+where p.city = 'Anapa'
+group by 1
+order by 2 desc
+limit 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
